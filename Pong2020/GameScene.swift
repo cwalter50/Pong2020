@@ -12,6 +12,7 @@ class GameScene: SKScene
 {
     var paddle = SKSpriteNode()
     var ball = SKSpriteNode()
+    var compPaddle = SKSpriteNode()
     
     override func didMove(to view: SKView)
     {
@@ -21,15 +22,45 @@ class GameScene: SKScene
         // get access to the ball
         ball = childNode(withName: "ball") as! SKSpriteNode
         
+        ball.physicsBody?.applyImpulse(CGVector(dx: 300, dy: 300))
+        
+        createComputerPaddle()
+        
         let borderBody = SKPhysicsBody(edgeLoopFrom: self.frame)
         borderBody.friction = 0.0
         self.physicsBody = borderBody
         
         physicsWorld.gravity = CGVector(dx: 0, dy: 0)
-//        physicsWorld.gravity = CGVector(dx: 0.0, dy: 0.0)
 //         physicsWorld.gravity = CGVector(dx: 0.0, dy: -9.8)
 
         
+    }
+    
+    func createComputerPaddle()
+    {
+        compPaddle = SKSpriteNode(color: UIColor.green, size: CGSize(width: 200, height: 50))
+        compPaddle.position = CGPoint(x: frame.width*0.5, y: frame.height*0.8)
+        compPaddle.physicsBody = SKPhysicsBody(rectangleOf: compPaddle.frame.size)
+        
+        compPaddle.physicsBody?.allowsRotation = false
+        compPaddle.physicsBody?.friction = 0.0
+        compPaddle.physicsBody?.isDynamic = false
+        compPaddle.physicsBody?.restitution = 1.0
+        
+        addChild(compPaddle)
+        let sequence = SKAction.sequence([
+            SKAction.run(moveComputerPaddle),
+            SKAction.wait(forDuration: 0.1)
+        ])
+        
+        run(SKAction.repeatForever(sequence))
+        
+    }
+    
+    func moveComputerPaddle()
+    {
+        let move = SKAction.moveTo(x: ball.position.x, duration: 0.1)
+        compPaddle.run(move)
     }
     
     var isFingerOnPaddle = false
