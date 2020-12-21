@@ -13,6 +13,12 @@ class GameScene: SKScene
     var paddle = SKSpriteNode()
     var ball = SKSpriteNode()
     var compPaddle = SKSpriteNode()
+    var bottom = SKSpriteNode()
+    var top = SKSpriteNode()
+    var playerScoreLabel = SKLabelNode()
+    var computerScoreLabel = SKLabelNode()
+    var playerScore = 0
+    var computerScore = 0
     
     override func didMove(to view: SKView)
     {
@@ -33,8 +39,47 @@ class GameScene: SKScene
         physicsWorld.gravity = CGVector(dx: 0, dy: 0)
 //         physicsWorld.gravity = CGVector(dx: 0.0, dy: -9.8)
 
+        createTopAndBottomNodes()
+        createLabels()
+    }
+    
+    func createLabels()
+    {
+        playerScoreLabel = SKLabelNode(fontNamed: "Avenir")
+        playerScoreLabel.text = "0"
+//        playerScoreLabel.text = "🤪"
+        playerScoreLabel.fontSize = 75
+        playerScoreLabel.color = UIColor.white
+        playerScoreLabel.position = CGPoint(x: frame.width*0.25, y: frame.height*0.2)
+        addChild(playerScoreLabel)
+//        playerScoreLabel.physicsBody = SKPhysicsBody(rectangleOf: playerScoreLabel.frame.size)
+        
+        computerScoreLabel = SKLabelNode(fontNamed: "Avenir")
+        computerScoreLabel.text = "0"
+        computerScoreLabel.fontSize = 75
+        computerScoreLabel.color = UIColor.white
+        computerScoreLabel.position = CGPoint(x: frame.width*0.75, y: frame.height*0.7)
+        addChild(computerScoreLabel)
+    }
+    
+    func createTopAndBottomNodes()
+    {
+        bottom = SKSpriteNode(color: UIColor.systemPink, size: CGSize(width: frame.width, height: 50))
+        bottom.position = CGPoint(x: frame.width*0.5, y: 100)
+        addChild(bottom)
+        bottom.physicsBody = SKPhysicsBody(rectangleOf: bottom.frame.size)
+        bottom.physicsBody?.isDynamic = false
+        
+        top = SKSpriteNode(color: UIColor.blue, size: CGSize(width: frame.width, height: 50))
+        top.position = CGPoint(x: frame.width*0.5, y: frame.height-100)
+        addChild(top)
+        top.physicsBody = SKPhysicsBody(rectangleOf: top.frame.size)
+        top.physicsBody?.isDynamic = false
+        
         
     }
+    
+    
     
     func createComputerPaddle()
     {
@@ -50,7 +95,7 @@ class GameScene: SKScene
         addChild(compPaddle)
         let sequence = SKAction.sequence([
             SKAction.run(moveComputerPaddle),
-            SKAction.wait(forDuration: 0.1)
+            SKAction.wait(forDuration: 0.4)
         ])
         
         run(SKAction.repeatForever(sequence))
@@ -59,7 +104,7 @@ class GameScene: SKScene
     
     func moveComputerPaddle()
     {
-        let move = SKAction.moveTo(x: ball.position.x, duration: 0.1)
+        let move = SKAction.moveTo(x: ball.position.x, duration: 0.4)
         compPaddle.run(move)
     }
     
