@@ -8,7 +8,7 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene
+class GameScene: SKScene, SKPhysicsContactDelegate
 {
     var paddle = SKSpriteNode()
     var ball = SKSpriteNode()
@@ -18,7 +18,17 @@ class GameScene: SKScene
     var playerScoreLabel = SKLabelNode()
     var computerScoreLabel = SKLabelNode()
     var playerScore = 0
+    {
+        didSet {
+            playerScoreLabel.text = "\(playerScore)"
+        }
+    }
     var computerScore = 0
+    {
+        didSet {
+            computerScoreLabel.text = "\(computerScore)"
+        }
+    }
     
     override func didMove(to view: SKView)
     {
@@ -41,7 +51,56 @@ class GameScene: SKScene
 
         createTopAndBottomNodes()
         createLabels()
+        
+        physicsWorld.contactDelegate = self
+        
+        ball.physicsBody?.categoryBitMask = 1
+        top.physicsBody?.categoryBitMask = 4
+        bottom.physicsBody?.categoryBitMask = 4
+        
+        ball.physicsBody?.contactTestBitMask = 4
+        
+        
     }
+    
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+        
+        
+        if (contact.bodyA.categoryBitMask == 1 || contact.bodyB.categoryBitMask == 1) && (contact.bodyA.categoryBitMask == 4 || contact.bodyB.categoryBitMask == 4)
+        {
+            print(contact.contactPoint)
+            if contact.bodyA.node == top || contact.bodyB.node == top
+            {
+                playerScore += 1
+            }
+            else
+            {
+                computerScore += 1
+            }
+            resetBall()
+        }
+    }
+    
+    func resetBall()
+    {
+        ball.physicsBody?.velocity = CGVector(dx: 0, dy: 0) // stop ball
+        let wait = SKAction.wait(forDuration: 1)
+        
+        let center = SKAction.run {
+            self.ball.position = CGPoint(x: self.frame.width/2, y: self.frame.height/2)
+        }
+        
+        let push = SKAction.run {
+            self.ball.physicsBody?.applyImpulse(CGVector(dx: 200, dy: -200))
+        }
+        
+        let sequence = SKAction.sequence([wait, center, wait, push])
+        run(sequence)
+        
+    }
+    
+    
     
     func createLabels()
     {
@@ -95,7 +154,7 @@ class GameScene: SKScene
         addChild(compPaddle)
         let sequence = SKAction.sequence([
             SKAction.run(moveComputerPaddle),
-            SKAction.wait(forDuration: 0.4)
+            SKAction.wait(forDuration: 0.2)
         ])
         
         run(SKAction.repeatForever(sequence))
@@ -104,7 +163,7 @@ class GameScene: SKScene
     
     func moveComputerPaddle()
     {
-        let move = SKAction.moveTo(x: ball.position.x, duration: 0.4)
+        let move = SKAction.moveTo(x: ball.position.x, duration: 0.3)
         compPaddle.run(move)
     }
     
